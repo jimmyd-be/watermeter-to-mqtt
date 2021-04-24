@@ -55,7 +55,7 @@ def Interrupt(channel):
     #Send JSON TO MQTT
     client = mqtt.Client()
     client.connect(mqtt_host, mqtt_port, 60)
-    client.publish(mqtt_topic, payload=json.dumps(data.), qos=0, retain=False)
+    client.publish(mqtt_topic, payload=Counter, qos=0, retain=False)
     client.disconnect()
     print("Watermeter Counter = " + str(Counter))
 
