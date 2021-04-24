@@ -1,7 +1,6 @@
 #!/usr/bin/python
 import RPi.GPIO as GPIO
 import time
-import urllib2
 import os
 import paho.mqtt.client as mqtt
 
@@ -19,10 +18,9 @@ gpio_pin = 40
 
 #Open meterstand.txt file and read meterstand
 #If meterstand.txt does not exist it will create the file and add the meterstand of Counter to it
-fn = "./meterstand_water.txt"
+fn = "/home/user/meterstand_water.txt"
 if os.path.exists(fn):
-    f = file(fn, "r+")
-    f = open(fn)
+    f = open(fn, "r+")
     inhoud = f.readline()
     a,b,c = inhoud.split()
     Counter = int(c)
@@ -44,8 +42,7 @@ def Interrupt(channel):
        print('quitting event handler because this was probably a false positive')
        return
     #Counter will count every interrupt and add Couter with 0.5l (deler watermeter will be set on 10)
-    file(fn, "r+")
-    f = open(fn)
+    f = open(fn, "r+")
     inhoud = f.readline()
     a,b,c = inhoud.split()
     Counter = int(c)
@@ -60,7 +57,7 @@ def Interrupt(channel):
     client.connect(mqtt_host, mqtt_port, 60)
     client.publish(mqtt_topic, payload=json.dumps(data.), qos=0, retain=False)
     client.disconnect()
-    print "Watermeter Counter = " + str(Counter)
+    print("Watermeter Counter = " + str(Counter))
 
 #Interrupt-Event toevoegen, sensor geeft een 0 en en bij detectie een 1
 #Bij detectie een 1 daarom check stijgende interrupt.
@@ -71,4 +68,4 @@ try:
       time.sleep(0.2)        
 except KeyboardInterrupt:
   GPIO.cleanup()
-  print "\nBye"
+  print("\nBye")
