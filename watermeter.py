@@ -13,12 +13,15 @@ mqtt_host = "localhost"
 mqtt_port = 1883
 mqtt_topic = "watermeter"
 
+#filename for persisting data local
+fileName = "/home/user/meterstand_water.txt"
+
 #Pin property (pin 40 is GPIO 21)
 gpio_pin = 40
 
 #Open meterstand.txt file and read meterstand
 #If meterstand.txt does not exist it will create the file and add the meterstand of Counter to it
-fn = "/home/user/meterstand_water.txt"
+fn = fileName
 if os.path.exists(fn):
     f = open(fn, "r+")
     inhoud = f.readline()
