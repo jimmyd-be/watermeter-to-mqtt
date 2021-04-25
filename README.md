@@ -3,7 +3,7 @@
 
   
 
-The script listens to to a signal of a PNP sensor to create and count the water consumption. This can then be shown on a home assistant
+The script listens to to a signal of a PNP sensor to create and count the water consumption. This can then be shown on a home assistant installation or other tools.
 
   
 
