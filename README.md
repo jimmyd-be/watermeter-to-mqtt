@@ -39,6 +39,13 @@ The Python script does use following modules:
 
 To run the script on a regular basis create a cron job for it (sudo contab -e). For example, I have a cronjob that calls the script on boot: ```@reboot python3 /home/pi/watermeter.py > /var/log/cronlog.log 2>&1```.
 
+To run the script in Systemd you need to copy watermeter.service to /etc/systemd/system/watermeter.service. For enableling this ou need to run 
+
+```systemctl daemon-reload && systemctl enable watermeter && systemctl start watermeter --no-block```
+
+The logs of the Systemd service can be found with:
+```systemctl status my_daemon```
+
 ## Configuration
 The script need to be changed to connect to the correct mqtt host. You can do this by changing ```mqtt_host```, ```mqtt_port```, ```mqtt_topic```, ```fileName``` ```Counter``` and ```gpio_pin``` properties in the file.
 
