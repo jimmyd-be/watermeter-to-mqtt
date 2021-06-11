@@ -3,6 +3,7 @@ Description=Watermeter reader daemon
 
 [Service]
 Type=simple
+User=root
 ExecStart=/usr/bin/python3 /home/pi/watermeter.py
 WorkingDirectory=/home/pi/
 Restart=always
