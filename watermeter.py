@@ -10,17 +10,17 @@ global Counter
 Counter = 0
 
 # MQTT URL
-mqtt_host = "localhost"
-mqtt_port = 1883
-mqtt_topic = "watermeter"
+mqtt_host = os.getenv('MQTT_HOST')
+mqtt_port = os.getenv('MQTT_PORT')
+mqtt_topic = os.getenv('MQTT_TOPIC')
 
 # filename for persisting data local
-fileName = "/home/pi/meterstand_water.txt"
+fileName = "/usr/src/app/config/meterstand_water.txt"
 
 # Pin property (pin 9 is GPIO 21)
 gpio_pin = 9
 
-logging.basicConfig(filename='watermeter.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
+# logging.basicConfig(filename='watermeter.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger('watermeter')
 
 logger.info('Script started')
@@ -65,7 +65,7 @@ def Interrupt(channel):
     # Send JSON TO MQTT
     try:
         client = mqtt.Client()
-        client.connect(mqtt_host, mqtt_port, 60)
+        client.connect(mqtt_host, int(mqtt_port), 60)
         client.publish(mqtt_topic, payload=Counter, qos=0, retain=False)
         client.disconnect()
         logger.info("Watermeter Counter = " + str(Counter))
