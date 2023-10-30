@@ -1,4 +1,6 @@
 #!/usr/bin/python
+import sys
+
 import RPi.GPIO as GPIO
 import time
 import os
@@ -6,8 +8,8 @@ import paho.mqtt.client as mqtt
 import logging
 
 # Watermeter stand (will only be used when there is nog meterstand_water.txt file)
-global Counter
-Counter = 0
+# global counter
+counter = 0
 
 # MQTT URL
 mqtt_host = os.getenv('MQTT_HOST')
@@ -21,6 +23,7 @@ fileName = "/usr/src/app/config/meterstand_water.txt"
 gpio_pin = 9
 
 # logging.basicConfig(filename='watermeter.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(stream=sys.stdout)
 logger = logging.getLogger('watermeter')
 
 logger.info('Script started')
@@ -32,10 +35,10 @@ if os.path.exists(fn):
     f = open(fn, "r+")
     inhoud = f.readline()
     a, b, c = inhoud.split()
-    Counter = int(c)
+    counter = int(c)
 else:
     f = open(fn, "w")
-    f.write('meterstand = ' + repr(Counter))
+    f.write('meterstand = ' + repr(counter))
     f.close()
 
 # Board is pin nr, BMC is GPIO nr
