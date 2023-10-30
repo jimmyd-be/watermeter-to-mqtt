@@ -30,7 +30,24 @@ For other devices that can handle 5V input:
 The black cable of the proximity sensor need to be connected to a 5V input pin.
 
 
-## Software setup
+## Installation
+
+### Docker installation
+```
+docker run --name Watermeter \
+        --restart always \
+        -e MQTT_HOST=192.168.0.250 \
+        -e MQTT_PORT=1883 \
+        -e MQTT_TOPIC=watermeter \
+        -v /home/pi/config/watermeter:/usr/src/app/config \
+        --device /dev/bmc \
+        --privileged \
+        -d lonelobo0070/watermeter_to_mqtt:latest
+```
+
+
+
+### Manual installation
 Download the python file on your system and try to run it using python3 watermeter.py. It is possible you need to install additional python modules. You can do this by calling ```pip3 install <module>```.
 
 The Python script does use following modules:
