@@ -23,7 +23,7 @@ fileName = "/usr/src/app/config/meterstand_water.txt"
 gpio_pin = 9
 
 # logging.basicConfig(filename='watermeter.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
-logging.basicConfig(stream=sys.stdout)
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger('watermeter')
 
 logger.info('Script started')
