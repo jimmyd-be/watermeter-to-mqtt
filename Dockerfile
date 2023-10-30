@@ -1,7 +1,7 @@
 FROM python:3.9.18-alpine
 WORKDIR /usr/src/app
 
-RUN apk add build-base
+RUN apk add build-base py3-rpigpio
 
 ADD watermeter.py .
 ADD requirements.txt .

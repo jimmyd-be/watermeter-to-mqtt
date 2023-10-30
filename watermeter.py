@@ -39,7 +39,7 @@ else:
     f.close()
 
 # Board is pin nr, BMC is GPIO nr
-GPIO.setmode(GPIO.BMC)
+GPIO.setmode(GPIO.BCM)
 GPIO.setup(gpio_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 
@@ -51,24 +51,24 @@ def Interrupt(channel):
     if GPIO.input(gpio_pin) == 0:
         logger.warning('quitting event handler because this was probably a false positive')
         return
-    # Counter will count every interrupt and add Couter with 0.5l (deler watermeter will be set on 10)
+    # counter will count every interrupt and add Couter with 0.5l (deler watermeter will be set on 10)
     f = open(fn, "r+")
-    inhoud = f.readline()
-    a, b, c = inhoud.split()
-    Counter = int(c)
-    Counter = Counter + 1
+    inbound = f.readline()
+    a, b, c = inbound.split()
+    counter = int(c)
+    counter = counter + 1
     f.close()
     # Write counter to file
     f = open(fn, 'w')
-    f.write('meterstand = ' + repr(Counter))
+    f.write('meterstand = ' + repr(counter))
     f.close()
     # Send JSON TO MQTT
     try:
         client = mqtt.Client()
         client.connect(mqtt_host, int(mqtt_port), 60)
-        client.publish(mqtt_topic, payload=Counter, qos=0, retain=False)
+        client.publish(mqtt_topic, payload=counter, qos=0, retain=False)
         client.disconnect()
-        logger.info("Watermeter Counter = " + str(Counter))
+        logger.info("Watermeter counter = " + str(counter))
     except:
         logger.error("Could not sent message to MQTT server!")
 
