@@ -1,12 +1,12 @@
-FROM python:3.9.18-alpine
+FROM python:3.13.3-slim-bookworm
 WORKDIR /usr/src/app
 
-RUN apk add build-base py3-rpigpio
+RUN apt install -y build-base python3-lgpio
 
 ADD watermeter.py .
 ADD requirements.txt .
 RUN pip install -r requirements.txt
 
-RUN apk del build-base
+RUN apt purge -y  build-base
 
 CMD ["python", "./watermeter.py"]
