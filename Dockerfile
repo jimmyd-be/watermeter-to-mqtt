@@ -1,7 +1,8 @@
 FROM ubuntu:rolling
 WORKDIR /usr/src/app
 
-RUN apt-get install -y build-essential python3-lgpio
+RUN apt-get install -y build-essential 
+python3-lgpio
 
 ADD watermeter.py .
 ADD requirements.txt .
