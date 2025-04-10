@@ -1,4 +1,4 @@
-FROM python:3.13.3-slim-bookworm
+FROM ubuntu:latest
 WORKDIR /usr/src/app
 
 RUN apt-get install -y build-essential python3-lgpio
