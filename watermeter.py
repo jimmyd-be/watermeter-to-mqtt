@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import sys
 
-import RPi.GPIO as GPIO
+import lgpio
 import time
 import os
 import paho.mqtt.client as mqtt
@@ -17,72 +17,78 @@ mqtt_port = os.getenv('MQTT_PORT')
 mqtt_topic = os.getenv('MQTT_TOPIC')
 
 # filename for persisting data local
-fileName = "/usr/src/app/config/meterstand_water.txt"
+fileName = "/usr/src/app/config/meterstand_water.txt""
 
 # Pin property (pin 9 is GPIO 21)
 gpio_pin = 9
 
-# logging.basicConfig(filename='watermeter.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
+# Logging setup
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger('watermeter')
 
 logger.info('Script started')
 
 # Open meterstand.txt file and read meterstand
-# If meterstand.txt does not exist it will create the file and add the meterstand of Counter to it
 fn = fileName
 if os.path.exists(fn):
-    f = open(fn, "r+")
-    inhoud = f.readline()
-    a, b, c = inhoud.split()
-    counter = int(c)
+    with open(fn, "r") as f:
+        inhoud = f.readline()
+        a, b, c = inhoud.split()
+        counter = int(c)
 else:
-    f = open(fn, "w")
-    f.write('meterstand = ' + repr(counter))
-    f.close()
+    with open(fn, "w") as f:
+        f.write('meterstand = ' + repr(counter))
 
-# Board is pin nr, BMC is GPIO nr
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(gpio_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+# Open GPIO chip and configure the pin
+chip = lgpio.gpiochip_open(0)  # Open GPIO chip 0
+lgpio.gpio_claim_input(chip, gpio_pin)  # Set pin as input
 
-
-# Functie  callback
-# This function will be called when an interrupt happens
-def Interrupt(channel):
+# Callback function for GPIO events
+def interrupt(chip, gpio):
+    global counter
     logger.info('Callback function called!')
-    time.sleep(0.05)  # need to filter out the false positive of some power fluctuation
-    if GPIO.input(gpio_pin) == 0:
-        logger.warning('quitting event handler because this was probably a false positive')
+    time.sleep(0.05)  # Filter out false positives
+    if lgpio.gpio_read(chip, gpio_pin) == 0:
+        logger.warning('Quitting event handler because this was probably a false positive')
         return
-    # counter will count every interrupt and add Couter with 0.5l (deler watermeter will be set on 10)
-    f = open(fn, "r+")
-    inbound = f.readline()
-    a, b, c = inbound.split()
-    counter = int(c)
-    counter = counter + 1
-    f.close()
-    # Write counter to file
-    f = open(fn, 'w')
-    f.write('meterstand = ' + repr(counter))
-    f.close()
-    # Send JSON TO MQTT
+    # Increment counter and write to file
+    with open(fn, "r") as f:
+        inbound = f.readline()
+        a, b, c = inbound.split()
+        counter = int(c)
+    counter += 1
+    with open(fn, "w") as f:
+        f.write('meterstand = ' + repr(counter))
+    # Send JSON to MQTT
     try:
         client = mqtt.Client()
         client.connect(mqtt_host, int(mqtt_port), 60)
         client.publish(mqtt_topic, payload=counter, qos=0, retain=False)
         client.disconnect()
         logger.info("Watermeter counter = " + str(counter))
-    except:
-        logger.error("Could not sent message to MQTT server!")
+    except Exception as e:
+        logger.error(f"Could not send message to MQTT server: {e}")
 
 
-# Interrupt-Event toevoegen, sensor geeft een 0 en en bij detectie een 1
-# Bij detectie een 1 daarom check stijgende interrupt.
-GPIO.add_event_detect(gpio_pin, GPIO.RISING, callback=Interrupt, bouncetime=200)
+# Initialize the previous state
+previous_state = lgpio.gpio_read(chip, gpio_pin)
 
 try:
+    # Configure the pin for alerts
+    lgpio.gpio_claim_alert(chip, gpio_pin, lgpio.BOTH_EDGES)
+
     while True:
-        time.sleep(0.2)
+        # Read the current state of the pin
+        current_state = lgpio.gpio_read(chip, gpio_pin)
+
+        # Detect a rising edge (transition from LOW to HIGH)
+        if previous_state == 0 and current_state == 1:
+            interrupt(chip, gpio_pin)  # Call the interrupt function
+
+        # Update the previous state
+        previous_state = current_state
+
+        time.sleep(0.01)  # Adjust polling interval as needed
 except KeyboardInterrupt:
-    GPIO.cleanup()
+    lgpio.gpiochip_close(chip)  # Cleanup GPIO
     logger.warning("\nBye")
