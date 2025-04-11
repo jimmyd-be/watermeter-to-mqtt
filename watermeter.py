@@ -17,7 +17,7 @@ mqtt_port = os.getenv('MQTT_PORT')
 mqtt_topic = os.getenv('MQTT_TOPIC')
 
 # filename for persisting data local
-fileName = "/usr/src/app/config/meterstand_water.txt""
+fileName = "/usr/src/app/config/meterstand_water.txt"
 
 # Pin property (pin 9 is GPIO 21)
 gpio_pin = 9
